@@ -2,15 +2,17 @@ package myapp
 
 default allow = false
 
+# Load allowlist from Redis
+resp := http.send({
+  "method": "GET",
+  "url": "http://localhost:7379/GET/myapp_allowlist",
+  "headers": {"Content-Type": "application/json"},
+  "force_json_decode": true
+})
 
-allowlist := {
-  "some-valid-token-1": [
-    "/resource1",
-    "/resource2"
-  ],
-  "some-valid-token-2": [
-    "/resource2"
-  ]
+allowlist := json.unmarshal(resp.body.GET) if {
+   resp.status_code == 200
+   resp.body != ""
 }
 
 key_allowed(key) if {

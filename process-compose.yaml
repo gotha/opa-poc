@@ -1,0 +1,54 @@
+version: "0.5"
+
+processes:
+  redis:
+    command: redis-server
+    readiness_probe:
+      exec:
+        command: "redis-cli ping"
+      initial_delay_seconds: 5
+      period_seconds: 10
+
+  add_policy_to_redis:
+    command: |
+      redis-cli SET myapp_allowlist '{"some-valid-token-1": ["/resource1", "/resource2"], "some-valid-token-2": ["/resource2"]}'
+    depends_on:
+      redis:
+        condition: process_healthy
+    restart: "no"
+
+  webdis:
+    command: webdis
+    readiness_probe:
+      exec:
+        command: "curl -f http://localhost:7379/PING"
+      initial_delay_seconds: 5
+      period_seconds: 10
+    depends_on:
+      redis:
+        condition: process_healthy
+      add_policy_to_redis:
+        condition: process_completed_successfully
+
+  opa:
+    command: |
+      opa run apikey-policy.rego --server --addr :8181
+    readiness_probe:
+      exec:
+        command: "curl -f http://localhost:8181/health"
+      initial_delay_seconds: 5
+      period_seconds: 10
+    depends_on:
+      webdis:
+        condition: process_healthy
+
+  myapp:
+    command: go run main.go
+    readiness_probe:
+      exec:
+        command: "curl -f http://localhost:8080/"
+      initial_delay_seconds: 5
+      period_seconds: 10
+    depends_on:
+      opa:
+        condition: process_healthy

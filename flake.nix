@@ -15,7 +15,10 @@
             go
             open-policy-agent
             conftest # OPA-based testing tool
+            process-compose
+            redis
             regols # Rego Language Server
+            webdis
           ];
         };
       });
