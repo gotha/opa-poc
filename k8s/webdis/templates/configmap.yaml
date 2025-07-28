@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webdis-config
+  labels:
+    {{- include "webdis.labels" . | nindent 4 }}
+data:
+  webdis.conf: |
+    {
+      "redis_host": "{{ .Values.webdis.redis.host }}",
+      "redis_port": {{ .Values.webdis.redis.port }},
+      {{- if .Values.webdis.redis.password }}
+      "redis_auth": "{{ .Values.webdis.redis.password }}",
+      {{- end }}
+      "redis_db": {{ .Values.webdis.redis.database }},
+      
+      "http_host": "0.0.0.0",
+      "http_port": {{ .Values.webdis.http.port }},
+      "threads": {{ .Values.webdis.http.threads }},
+      
+      "websockets": {{ .Values.webdis.websockets.enabled }},
+      
+      "verbosity": {{ .Values.webdis.verbosity }},
+      "logfile": "{{ .Values.webdis.logfile }}",
+      
+      "acl": [
+        {
+          "disabled": ["DEBUG", "FLUSHDB", "FLUSHALL", "SHUTDOWN", "CONFIG"]
+        }
+      ]
+    }
