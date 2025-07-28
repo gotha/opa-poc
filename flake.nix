@@ -15,6 +15,9 @@
             go
             open-policy-agent
             conftest # OPA-based testing tool
+            kind
+            kubectl
+            kubernetes-helm
             process-compose
             redis
             regols # Rego Language Server

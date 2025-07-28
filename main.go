@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"os"
 )
 
 func main() {
@@ -70,8 +72,17 @@ func checkOPAPolicy(authHeader, path string) (bool, error) {
 
 	jsonData, _ := json.Marshal(opaReq)
 
-	resp, err := http.Post("http://localhost:8181/v1/data/myapp/allow",
-		"application/json", bytes.NewBuffer(jsonData))
+	opaBaseURL := "http://localhost:8181"
+	if v := os.Getenv("OPA_BASE_URL"); v != "" {
+		opaBaseURL = v
+	}
+
+	target, err := url.JoinPath(opaBaseURL, "v1/data/myapp/allow")
+	if err != nil {
+		return false, fmt.Errorf("failed to join OPA base URL and path: %w", err)
+	}
+
+	resp, err := http.Post(target, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return false, err
 	}
