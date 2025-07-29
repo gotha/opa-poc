@@ -45,6 +45,8 @@ spec:
             - "--server"
             - "--addr"
             - ":8181"
+            - "--set=decision_logs.console=true"
+            - "--log-level=debug"
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:

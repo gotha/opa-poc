@@ -28,10 +28,15 @@ path_allowed(token, request_path) if {
 
 # Main allow rule
 allow if {
-  startswith(input.request.headers.authorization, "Bearer ")
-  api_key := substring(input.request.headers.authorization, 7, -1)
+  authz_header := input.headers["authorization"]
+  startswith(authz_header, "Bearer ")
+  api_key := substring(authz_header, 7, -1)
   key_allowed(api_key)
   path_allowed(api_key, input.request.path)
+}
+
+allow if {
+  input.path == "/"
 }
 
 # Debug helpers - remove these in production

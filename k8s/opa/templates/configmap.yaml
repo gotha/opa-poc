@@ -28,6 +28,7 @@ data:
     }
 
     path_allowed(token, request_path) if {
+
         allowed_paths := allowlist[token]
         some allowed_path in allowed_paths
         startswith(request_path, allowed_path)
@@ -35,26 +36,17 @@ data:
 
     # Main allow rule
     allow if {
-      startswith(input.request.headers.authorization, "Bearer ")
-      api_key := substring(input.request.headers.authorization, 7, -1)
+      parsed_query := input.parsed_query 
+
+      token := input.parsed_query.authorization
+      startswith(token, "Bearer ")
+      api_key := substring(token, 7, -1)
       key_allowed(api_key)
-      path_allowed(api_key, input.request.path)
+
+      path := parsed_query.path
+      path_allowed(api_key, path)
     }
 
-    # Debug helpers - remove these in production
-    # ==========================================
-    key_valid if {
-      startswith(input.request.headers.authorization, "Bearer ")
-      api_key := substring(input.request.headers.authorization, 7, -1)
-      key_allowed(api_key)
-    }
-
-    path_valid if {
-      startswith(input.request.headers.authorization, "Bearer ")
-      api_key := substring(input.request.headers.authorization, 7, -1)
-      path_allowed(api_key, input.request.path)
-    }
-
-    debug_info := {
-      "request_path": input.request.path,
+    allow if {
+      input.parsed_query.path == "/"
     }

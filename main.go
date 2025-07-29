@@ -12,8 +12,8 @@ import (
 
 func main() {
 	http.HandleFunc("/", helloHandler)
-	http.HandleFunc("/resource1", validApiKeyMiddleware(resource1Handler))
-	http.HandleFunc("/resource2", validApiKeyMiddleware(resource2Handler))
+	http.HandleFunc("/resource1", resource1Handler)
+	http.HandleFunc("/resource2", resource2Handler)
 
 	log.Println("Server starting on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

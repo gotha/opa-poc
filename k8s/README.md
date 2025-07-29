@@ -1,7 +1,7 @@
 # Setup in k8s
 
 ```sh
-kind create cluster --name opa
+kind create cluster --name opa --config cluster-config.yaml
 ```
 
 ## Build app image and load it into kind clusterA
@@ -19,6 +19,12 @@ helm repo update
 
 
 helm install redis bitnami/redis -f redis.values.yaml
+
+wait for redis to start
+kubectl wait --namespace default \
+  --for=condition=ready pod \
+  --selector=apps.kubernetes.io/pod-index=0 \
+  --timeout=90s
 ```
 
 ## Install Webdis
@@ -55,14 +61,23 @@ keep in mind that the rego policy is in `./opa/templates/configmap.yaml`
 helm install myapp ./myapp
 ```
 
-## Test it
+## Install ingress
+
+based on https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
 
 ```sh
-kubectl port-forward svc/myapp 8080:8080
+kubectl apply -f deploy-ingress-nginx.yaml
+```
+
+
+## Test it
+
+```/etc/hosts
+127.0.0.1 myapp.local
 ```
 
 ```sh
-curl -H "Authorization: Bearer some-valid-token-1" localhost:8080/resource1
-curl -H "Authorization: Bearer some-invalid-token" localhost:8080/resource1
+curl -H "Authorization: Bearer some-valid-token-1" myapp.local:1080/resource1
+curl -H "Authorization: Bearer some-invalid-token" myapp.lcaol:1080/resource1
 ```
 
