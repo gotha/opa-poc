@@ -1,4 +1,4 @@
-# Default values for myapp.
+# Default values for auth-proxy.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,8 +7,8 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: myapp
-  # This sets the pull policy for images.
+  repository: auth-proxy
+  # This sets the pull policy for images
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
@@ -54,39 +54,21 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 8080
+  port: 7080
+  targetPort: 7080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "http://auth-proxy.default.svc.cluster.local:7080/gosho?path=$request_uri"
-    nginx.ingress.kubernetes.io/auth-method: POST
-    nginx.ingress.kubernetes.io/auth-send-body: "true"
-    nginx.ingress.kubernetes.io/auth-response-headers: Authorization
-    #nginx.ingress.kubernetes.io/auth-snippet: |
-    #  local cjson = require "cjson"
-    #  local headers = ngx.req.get_headers()
-    #  local path = ngx.var.request_uri
-    #  local body = {
-    #    input = {
-    #      headers = {
-    #        authorization = headers["authorization"]
-    #      },
-    #      request = {
-    #        path = path
-    #      }
-    #    }
-    #  }
-    #  ngx.req.set_header("Content-Type", "application/json")
-    #  ngx.req.set_body_data(cjson.encode(body))
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: myapp.local
+    - host: chart-example.local
       paths:
         - path: /
-          pathType: Prefix
+          pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -108,11 +90,11 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /
-    port: http
+    port: 7080
 readinessProbe:
   httpGet:
     path: /
-    port: http
+    port: 7080
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:

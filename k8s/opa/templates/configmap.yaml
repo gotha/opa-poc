@@ -28,7 +28,6 @@ data:
     }
 
     path_allowed(token, request_path) if {
-
         allowed_paths := allowlist[token]
         some allowed_path in allowed_paths
         startswith(request_path, allowed_path)
@@ -36,17 +35,13 @@ data:
 
     # Main allow rule
     allow if {
-      parsed_query := input.parsed_query 
-
-      token := input.parsed_query.authorization
-      startswith(token, "Bearer ")
-      api_key := substring(token, 7, -1)
+      authz_header := input.request.headers["authorization"]
+      startswith(authz_header, "Bearer ")
+      api_key := substring(authz_header, 7, -1)
       key_allowed(api_key)
-
-      path := parsed_query.path
-      path_allowed(api_key, path)
+      path_allowed(api_key, input.request.path)
     }
 
     allow if {
-      input.parsed_query.path == "/"
+      input.request.path == "/"
     }

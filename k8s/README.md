@@ -7,8 +7,13 @@ kind create cluster --name opa --config cluster-config.yaml
 ## Build app image and load it into kind clusterA
 
 ```sh
-docker build -t myapp:latest ..
+docker build -t myapp:latest ../cmd/server/
 kind load docker-image myapp:latest --name opa
+```
+
+```sh
+docker build -t auth-proxy:latest ../cmd/auth-proxy/
+kind load docker-image auth-proxy:latest --name opa
 ```
 
 ## Install Redis
@@ -59,6 +64,7 @@ keep in mind that the rego policy is in `./opa/templates/configmap.yaml`
 
 ```sh
 helm install myapp ./myapp
+helm install auth-proxy ./auth-proxy
 ```
 
 ## Install ingress

@@ -35,11 +35,10 @@ Run OPA server
 opa run apikey-policy.rego --server --addr :8181
 ```
 
-
 start go web server
 
 ```sh
-go run main
+go run cmd/server/main.go
 ```
 
 ## Test service
@@ -95,4 +94,4 @@ opa eval -d apikey-policy.rego -i input.json "data.myapp.key_valid"
 [x] allow a key to be used only on a specific list of resources
 [x] load valid api keys from external store - vault or redis
 [ ] setup OPA policy replication and configure go server to use replica
-[ ] integrate OPA server with ingress directly and remove auth code from go server
+[x] integrate OPA server with ingress directly and remove auth code from go server
